@@ -1,31 +1,9 @@
-const { DataTypes } = require('sequelize');
-/* const { sequelize } = require('../utils/database');
-
-const User = sequelize.define('userlist', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false
-    },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-    },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    accountType: {
-        type: DataTypes.ENUM('Basic', 'Pro', 'Business'),
-        allowNull: false
-    }
-});
-
-module.exports = User;
-*/
+const { Schema } = require('mongoose');
+const userSchema = new Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String }, // Optional for Google users
+    name: String,
+    googleId: String, // ← Add this
+    profilePicture: String, // ← Add this
+    createdAt: { type: Date, default: Date.now }
+  });
