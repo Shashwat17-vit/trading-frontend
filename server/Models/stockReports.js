@@ -1,4 +1,4 @@
-const mongoose = require('../utils/database'); // Import from database.js to use existing connection
+const mongoose = require('../utils/database'); // 
 const Schema = mongoose.Schema;
 
 const stockReportSchema = new Schema({

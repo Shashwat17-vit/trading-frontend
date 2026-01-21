@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
-import '../styles/SignupForm.css';
+import '../styles/Login.css';
 
-function Signin() {
+function Login() {
     const navigate = useNavigate();
     
     // ============ STATE ============
     const [email, setEmail] = useState('');
-    const [fullName, setFullName] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState('');
 
     // ============ GOOGLE OAUTH ============
-    const handleGoogleSignup = useGoogleLogin({
+    const handleGoogleLogin = useGoogleLogin({
         onSuccess: async (response) => {
             try {
                 // Send token to backend
@@ -24,63 +23,76 @@ function Signin() {
                 });
                 
                 const userData = await res.json();
-                console.log('Google signup success:', userData);
                 
-                // Redirect to home
-                navigate('/');
+                if (userData.success) {
+                    console.log('Google login success:', userData);
+                    // Store user data if needed
+                    localStorage.setItem('user', JSON.stringify(userData.user));
+                    // Redirect to home
+                    navigate('/');
+                } else {
+                    setError('Google login failed. Please try again.');
+                }
                 
             } catch (error) {
-                console.error('Google signup error:', error);
-                alert('Google signup failed. Please try again.');
+                console.error('Google login error:', error);
+                setError('Google login failed. Please try again.');
             }
         },
         onError: (error) => {
             console.error('Google Login Failed:', error);
-            alert('Could not connect to Google');
+            setError('Could not connect to Google');
         }
     });
 
-    // ============ CUSTOM EMAIL/PASSWORD SIGNUP ============
+    // ============ EMAIL/PASSWORD LOGIN ============
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Validate passwords match
-        if (password !== confirmPassword) {
-            alert('Passwords do not match!');
-            return;
-        }
+        setError('');
 
         try {
-            // Send to your custom signup endpoint
-            const res = await fetch('http://localhost:5000/auth/signup', {
+            // Send to your login endpoint
+            const res = await fetch('http://localhost:5000/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, fullName, password })
+                body: JSON.stringify({ email, password })
             });
             
             const data = await res.json();
-            console.log('Custom signup success:', data);
             
-            // Redirect to home
-            navigate('/');
+            if (data.success) {
+                console.log('Login success:', data);
+                // Store user data
+                localStorage.setItem('user', JSON.stringify(data.user));
+                // Redirect to home
+                navigate('/');
+            } else {
+                setError(data.message || 'Invalid email or password');
+            }
             
         } catch (error) {
-            console.error('Signup error:', error);
-            alert('Signup failed. Please try again.');
+            console.error('Login error:', error);
+            setError('Login failed. Please try again.');
         }
     };
 
-    // ============ JSX - Standalone Page (not modal) ============
+    // ============ JSX ============
     return (
-        <div className="modal-overlay">
-            <div className="signup-modal">
-                <button className="close-button" onClick={() => navigate('/')}>×</button>
-                
-                <h2>Create Your Account</h2>
-                <p className="subtitle">Start your investment journey today</p>
+        <div className="login-page">
+            <div className="login-container">
+                <div className="login-header">
+                    <h1>Welcome Back</h1>
+                    <p>Login to continue your investment journey</p>
+                </div>
 
-                {/* ===== GOOGLE SIGNUP (TOP) ===== */}
-                <button className="google-signup-btn" onClick={handleGoogleSignup}>
+                {error && (
+                    <div className="error-message">
+                        {error}
+                    </div>
+                )}
+
+                {/* ===== GOOGLE LOGIN ===== */}
+                <button className="google-login-btn" onClick={handleGoogleLogin}>
                     <svg width="18" height="18" viewBox="0 0 18 18">
                         <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
                         <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
@@ -94,8 +106,8 @@ function Signin() {
                     <span>OR</span>
                 </div>
 
-                {/* ===== CUSTOM EMAIL/PASSWORD SIGNUP (BOTTOM) ===== */}
-                <form onSubmit={handleSubmit} action="/signup" method="POST">
+                {/* ===== EMAIL/PASSWORD LOGIN FORM ===== */}
+                <form onSubmit={handleSubmit} className="login-form">
                     <div className="form-group">
                         <label htmlFor="email">Email Address</label>
                         <input
@@ -107,24 +119,13 @@ function Signin() {
                             required
                         />
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="name">Name</label>
-                        <input
-                            type="text"
-                            id="fullName"
-                            placeholder="Enter your Username"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            required
-                        />
-                    </div>
 
                     <div className="form-group">
                         <label htmlFor="password">Password</label>
                         <input
                             type="password"
                             id="password"
-                            placeholder="Create a strong password"
+                            placeholder="Enter your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -132,30 +133,26 @@ function Signin() {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="confirmPassword">Confirm Password</label>
-                        <input
-                            type="password"
-                            id="confirmPassword"
-                            placeholder="Re-enter your password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                            minLength="6"
-                        />
+                    <div className="forgot-password">
+                        <a href="/forgot-password">Forgot password?</a>
                     </div>
 
-                    <button type="submit" className="submit-btn">
-                        Create Account
+                    <button type="submit" className="login-btn">
+                        Login
                     </button>
                 </form>
 
-                <p className="login-link">
-                    Already have an account? <a href="/login">Log in</a>
+                <p className="signup-link">
+                    Don't have an account? <a href="/signup">Sign up</a>
                 </p>
+
+                <button className="back-home-btn" onClick={() => navigate('/')}>
+                    ← Back to Home
+                </button>
             </div>
         </div>
     );
 }
 
-export default Signin;
+export default Login;
+

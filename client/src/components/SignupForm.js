@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';  // ← Add this
+import { useGoogleLogin } from '@react-oauth/google'; 
 import '../styles/SignupForm.css';
 
 
@@ -53,10 +53,10 @@ function SignupForm({ isOpen, onClose }) {
 
         try {
             // Send to your custom signup endpoint
-            const res = await fetch('http://localhost:5000/api/signup', {
+            const res = await fetch('http://localhost:5000/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, fullName, password })
             });
             
             const data = await res.json();
@@ -112,7 +112,7 @@ function SignupForm({ isOpen, onClose }) {
                         <label htmlFor="name">Name</label>
                         <input
                             type="text"
-                            id="name"
+                            id="fullName"
                             placeholder="Enter your Username"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}

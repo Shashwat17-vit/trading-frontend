@@ -21,7 +21,11 @@ router.get('/google/callback',
 // Route: /auth/google/token (token method - for useGoogleLogin)
 router.post('/google/token', authController.googleTokenAuth);
 
-router.post('/signup', userController.postSignup);
+// Route: /auth/login (email/password login)
+router.post('/login', authController.login);
+
+// Route: /auth/signup (email/password signup)
+router.post('/signup', authController.signup);
 
 // Route: /auth/logout
 router.get('/logout', authController.logout);
