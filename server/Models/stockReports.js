@@ -1,15 +1,4 @@
-// const { getDb } = require('../utils/database');
-
-const mongoose = require('mongoose');
-
-mongoose.connect('mongodb+srv://root:Laxman!171717@cluster.y7reemk.mongodb.net/')
-.then(result => {
-    console.log('Connected to MongoDB');
-})
-.catch(err => {
-    console.log(err);
-});
-
+const mongoose = require('../utils/database'); // Import from database.js to use existing connection
 const Schema = mongoose.Schema;
 
 const stockReportSchema = new Schema({

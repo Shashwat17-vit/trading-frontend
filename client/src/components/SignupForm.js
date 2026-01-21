@@ -6,6 +6,7 @@ import '../styles/SignupForm.css';
 function SignupForm({ isOpen, onClose }) {
     // ============ STATE (existing) ============
     const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -38,7 +39,6 @@ function SignupForm({ isOpen, onClose }) {
         }
     });
 
-    // ✅ Early return comes AFTER all hooks
     if (!isOpen) return null;
 
     // ============ CUSTOM EMAIL/PASSWORD SIGNUP (existing) ============
@@ -96,7 +96,7 @@ function SignupForm({ isOpen, onClose }) {
                 </div>
 
                 {/* ===== CUSTOM EMAIL/PASSWORD SIGNUP (BOTTOM) ===== */}
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} action="/signup" method="POST">
                     <div className="form-group">
                         <label htmlFor="email">Email Address</label>
                         <input
@@ -105,6 +105,17 @@ function SignupForm({ isOpen, onClose }) {
                             placeholder="you@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="name">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            placeholder="Enter your Username"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
                             required
                         />
                     </div>

@@ -9,25 +9,26 @@ exports.getSignup = (req, res) => {
 // Handle signup form submission
 exports.postSignup = async (req, res) => {
     try {
-        const { name, email, password, accountType } = req.body;
+        const { email, fullName, password, confirmPassword } = req.body;
         
         // Create user in database
         const user = await User.create({
-            name,
             email,
+            fullName,
             password,
-            accountType
+            confirmPassword
         });
-        
-        // Console log the created user
-        console.log('=== New User Created ===');
-        console.log('ID:', user.id);
-        console.log('Name:', user.name);
-        console.log('Email:', user.email);
-        console.log('Password:', user.password);
-        console.log('Account Type:', user.accountType);
-        console.log('========================');
-        
+        user.findOne({ email:email }).then(userdoc => {
+            if (userdoc) {
+                return res.redirect('/signup');
+            }
+            const newUser = new User({ email, fullName, password, confirmPassword });
+            return newUser.save().then(user => {
+                res.redirect('/login');
+            }).catch(err => {
+                res.redirect('/signup');
+            });
+        });
         // Send success page
         res.sendFile(path.join(__dirname, '../Views/success.html'));
     } catch (error) {
