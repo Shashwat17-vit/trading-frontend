@@ -9,8 +9,8 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const MONGO_URI = 'mongodb+srv://root:Laxman!171717@cluster.y7reemk.mongodb.net/';
 const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
+const mongoConnect = require('./utils/database'); // Connect to MongoDB
 const app = express();
-//const mongoConnect = require('./utils/database')
 const path = require('path');
 const store = new MongoDBStore({
     uri: MONGO_URI,
