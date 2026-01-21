@@ -18,7 +18,7 @@ router.get('/google/callback',
   }),
   (req, res) => {
     // Success! Redirect to dashboard or home
-    res.redirect('http://localhost:3000');
+    res.redirect('http://localhost:5000');
   }
 );
 
@@ -88,6 +88,25 @@ router.get('/user', (req, res) => {
     res.json(req.user);
   } else {
     res.status(401).json({ message: 'Not authenticated' });
+  }
+});
+
+// 🔍 DEBUG ROUTE: Check all users in database
+router.get('/debug/users', async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json({
+      totalUsers: users.length,
+      users: users.map(u => ({
+        id: u._id,
+        email: u.email,
+        name: u.name,
+        googleId: u.googleId,
+        createdAt: u.createdAt
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

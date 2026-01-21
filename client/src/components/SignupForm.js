@@ -1,24 +1,77 @@
 import React, { useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';  // ← Add this
 import '../styles/SignupForm.css';
 
+
 function SignupForm({ isOpen, onClose }) {
+    // ============ STATE (existing) ============
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
+    // ============ GOOGLE OAUTH ============
+    const handleGoogleSignup = useGoogleLogin({
+        onSuccess: async (response) => {
+            try {
+                // Send token to backend
+                const res = await fetch('http://localhost:5000/auth/google/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: response.access_token })
+                });
+                
+                const userData = await res.json();
+                console.log('Google signup success:', userData);
+                
+                // Close modal and redirect
+                onClose();
+                // You can redirect or update global state here
+                
+            } catch (error) {
+                console.error('Google signup error:', error);
+                alert('Google signup failed. Please try again.');
+            }
+        },
+        onError: (error) => {
+            console.error('Google Login Failed:', error);
+            alert('Could not connect to Google');
+        }
+    });
+
+    // ✅ Early return comes AFTER all hooks
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    // ============ CUSTOM EMAIL/PASSWORD SIGNUP (existing) ============
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: Add signup logic here
-        console.log('Signup submitted:', { email, password });
+        
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            alert('Passwords do not match!');
+            return;
+        }
+
+        try {
+            // Send to your custom signup endpoint
+            const res = await fetch('http://localhost:5000/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await res.json();
+            console.log('Custom signup success:', data);
+            
+            // Close modal and redirect
+            onClose();
+            
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('Signup failed. Please try again.');
+        }
     };
 
-    const handleGoogleSignup = () => {
-        // TODO: Add Google OAuth logic here
-        console.log('Google signup clicked');
-    };
-
+    // ============ JSX (mostly unchanged) ============
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
@@ -27,7 +80,7 @@ function SignupForm({ isOpen, onClose }) {
                 <h2>Create Your Account</h2>
                 <p className="subtitle">Start your investment journey today</p>
 
-                {/* Google Sign Up Button */}
+                {/* ===== GOOGLE SIGNUP (TOP) ===== */}
                 <button className="google-signup-btn" onClick={handleGoogleSignup}>
                     <svg width="18" height="18" viewBox="0 0 18 18">
                         <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
@@ -42,7 +95,7 @@ function SignupForm({ isOpen, onClose }) {
                     <span>OR</span>
                 </div>
 
-                {/* Email/Password Form */}
+                {/* ===== CUSTOM EMAIL/PASSWORD SIGNUP (BOTTOM) ===== */}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="email">Email Address</label>
@@ -96,4 +149,3 @@ function SignupForm({ isOpen, onClose }) {
 }
 
 export default SignupForm;
-

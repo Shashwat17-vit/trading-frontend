@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../utils/database'); // Import from database.js to ensure connection
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
@@ -10,4 +10,4 @@ const userSchema = new Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema); // Mongoose auto-pluralizes to 'users'

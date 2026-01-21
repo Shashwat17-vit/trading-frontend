@@ -2,14 +2,20 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const userController = require('./Controllers/userController');
-const stockController = require('./Controllers/stockController');
+
+// ⚠️ IMPORTANT: Connect to database FIRST before importing models
+const mongoConnect = require('./utils/database'); // Connect to MongoDB
+
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
-const MONGO_URI = 'mongodb+srv://root:Laxman!171717@cluster.y7reemk.mongodb.net/';
+const MONGO_URI = 'mongodb+srv://root:Laxman!171717@cluster.y7reemk.mongodb.net/infostock';
+
+// Now import things that use models (after DB connection)
+const userController = require('./Controllers/userController');
+const stockController = require('./Controllers/stockController');
 const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
-const mongoConnect = require('./utils/database'); // Connect to MongoDB
+
 const app = express();
 const path = require('path');
 const store = new MongoDBStore({
